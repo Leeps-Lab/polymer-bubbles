@@ -1,0 +1,35 @@
+<link
+    rel="import"
+    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
+<link
+    rel="import"
+    href="bubbles-graph.html">
+
+<dom-module id='polymer-bubbles'>
+<template>
+    <bubbles-graph
+        other-decisions='[[ otherDecisions ]]'
+        max-payoff='[[ maxPayoff ]]'
+        payoff-function='[[ payoffFunction ]]'
+        >
+    </bubbles-graph>
+</template>
+<script>
+    Polymer({
+        is: 'polymer-bubbles',
+        properties: {
+            otherDecisions: {
+                type: Array,
+            },
+            maxPayoff: {
+                type: Number,
+            },
+            payoffFunction: {
+                type: Object,
+            },
+        },
+        ready() {
+        },
+    })
+</script>
+</dom-module>

@@ -1,0 +1,43 @@
+<link
+    rel="import"
+    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
+<link
+    rel='import'
+    href='bubbles.html'/>
+
+<dom-module id='bubbles-test'>
+<template>
+    <polymer-bubbles max-payoff='400' other-decisions='[[ _otherDecisions ]]' payoff-function='[[ _payoffFunction ]]'></polymer-bubbles>
+    <button on-tap='_onButtonPress'>randomize other decisions</button>
+</template>
+<script>
+    Polymer({
+        is: 'bubbles-test',
+        properties: {
+            _otherDecisions: {
+                type: Array,
+                value: () => [1, 0, 1],
+            },
+            _payoffFunction: {
+                type: Object,
+                value: function() {
+                    return this.getPayoff;
+                },
+            },
+        },
+        getPayoff(myDecision, otherDecisions) {
+            const avg = otherDecisions.concat([myDecision]).reduce((a, b) => a + b) / (otherDecisions.length + 1);
+            return 400 / (1 + Math.pow(avg - myDecision, 2));
+        },
+        _onButtonPress() {
+            let decisions = [];
+            for (let i = 0; i < 4; i++){
+                decisions.push(Math.random());
+            }
+            this.set('_otherDecisions', decisions);
+        },
+    })
+</script>
+</dom-module>
+
+<bubbles-test></bubbles-test>
