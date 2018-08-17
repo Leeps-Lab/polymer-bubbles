@@ -17,6 +17,10 @@
             maxPayoff: {
                 type: Number,
             },
+            myDecision: {
+                type: Number,
+                observer: '_redrawGraph',
+            },
             otherDecisions: {
                 type: Array,
             },
@@ -28,6 +32,13 @@
                     };
                 },
             },
+            enablePayoffLandscape: {
+                type: Boolean,
+                value: false,
+            },
+            othersBubbles: {
+                type: String,
+            }
         },
         observers: [
             '_redrawGraph(otherDecisions)',
@@ -60,8 +71,13 @@
             this.ctx.clearRect(0, 0, this.width, this.height);
             this._drawXAxis();
             this._drawYAxis();
-            this._drawPayoffLandscape();
-            this._drawOthersBubbles();
+            if (this.enablePayoffLandscape) {
+                this._drawPayoffLandscape();
+            }
+            if (this.othersBubbles !== 'none') {
+                this._drawOthersBubbles();
+            }
+            this._drawMyDecision();
             console.log(performance.now() - start);
         },
         _transformContext() {
@@ -105,17 +121,52 @@
 
             const radius = 8;
             for(let i = 0; i < otherDecisions.length; i++) {
+                let payoff = 0;
+                if (this.othersBubbles === 'payoff') {
+                    let otherDecisionsForOpponent = otherDecisions.slice();
+                    otherDecisionsForOpponent.splice(i, 1, this.myDecision);
+                    payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
+                }
                 ctx.beginPath();
                 // we can't use transformContext because scaling contexts doesn't play nice with arc
                 // so just manually transform x and y positions
                 const x = (otherDecisions[i] - this.xMin) * this.xScale;
-                const y = (this.yMax - 0) * this.yScale;
+                const y = (this.yMax - payoff) * this.yScale;
                 ctx.arc(x, y, radius, 0, 2 * Math.PI);
 
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = OTHER_COLORS[i];
                 ctx.stroke();
             }
+
+            ctx.restore();
+        },
+        _drawMyDecision() {
+            const ctx = this.ctx;
+
+            ctx.save();
+
+            ctx.save();
+            this._transformContext();
+            ctx.beginPath();
+            ctx.moveTo(this.myDecision, 0);
+            ctx.lineTo(this.myDecision, this.yMax);
+            ctx.restore();
+            ctx.strokeStyle = MY_COLOR;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            const payoffFunction = this.get('payoffFunction');
+            const otherDecisions = this.get('otherDecisions');
+
+            const radius = 8;
+            const myPayoff = payoffFunction(this.myDecision, otherDecisions);
+            const x = (this.myDecision - this.xMin) * this.xScale;
+            const y = (this.yMax - myPayoff) * this.yScale;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
             ctx.restore();
         },
@@ -140,13 +191,13 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
 
-            let curTickX = 0;
-            while (curTickX <= 1) {
-                let x = (curTickX - this.xMin) * this.xScale;
+            let curTick = 0;
+            while (curTick <= 1) {
+                let x = (curTick - this.xMin) * this.xScale;
                 ctx.moveTo(x, tickStartY);
                 ctx.lineTo(x, tickEndY);
-                ctx.fillText(curTickX.toFixed(1), x, tickEndY + 3)
-                curTickX += tickInterval;
+                ctx.fillText(curTick.toFixed(1), x, tickEndY + 3)
+                curTick += tickInterval;
             }
             ctx.stroke();
 
@@ -173,13 +224,13 @@
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
 
-            let curTickY = 0;
-            while (curTickY < this.yMax) {
-                let y = (this.yMax - curTickY) * this.yScale;
+            let curTick = 0;
+            while (curTick < this.yMax) {
+                let y = (this.yMax - curTick) * this.yScale;
                 ctx.moveTo(tickStartX, y);
                 ctx.lineTo(tickEndX, y);
-                ctx.fillText(curTickY, tickEndX - 3, y + 2);
-                curTickY += tickInterval;
+                ctx.fillText(curTick, tickEndX - 3, y + 2);
+                curTick += tickInterval;
             }
             ctx.stroke();
 

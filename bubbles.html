@@ -11,6 +11,9 @@
         other-decisions='[[ otherDecisions ]]'
         max-payoff='[[ maxPayoff ]]'
         payoff-function='[[ payoffFunction ]]'
+        my-decision='[[ myDecision ]]'
+        others-bubbles='payoff'
+        enable-payoff-landscape
         >
     </bubbles-graph>
 </template>
@@ -26,6 +29,9 @@
             },
             payoffFunction: {
                 type: Object,
+            },
+            myDecision: {
+                type: Number,
             },
         },
         ready() {
