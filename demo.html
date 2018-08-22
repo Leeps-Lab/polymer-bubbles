@@ -7,15 +7,19 @@
 
 <dom-module id='bubbles-test'>
 <template>
-    <polymer-bubbles
-        max-payoff='400'
-        other-decisions='[[ _otherDecisions ]]'
-        my-decision='[[ _myDecision ]]'
-        payoff-function='[[ _payoffFunction ]]'
-        >
-    </polymer-bubbles>
-    <button on-tap='_randomizeOthers'>randomize other decisions</button>
-    <button on-tap='_randomizeMy'>randomize my decision</button>
+    <div>
+        <polymer-bubbles
+            max-payoff='400'
+            other-decisions='[[ _otherDecisions ]]'
+            my-decision='[[ _myDecision ]]'
+            payoff-function='[[ _payoffFunction ]]'
+            >
+        </polymer-bubbles>
+    </div>
+    <div>
+        <button on-tap='_randomizeOthers'>randomize other decisions</button>
+        <button on-tap='_randomizeMy'>randomize my decision</button>
+    </div>
 </template>
 <script>
     Polymer({
@@ -35,6 +39,9 @@
                     return this.getPayoff;
                 },
             },
+        },
+        ready() {
+            this.$$('polymer-bubbles').roundStart();
         },
         getPayoff(myDecision, otherDecisions) {
             const avg = otherDecisions.concat([myDecision]).reduce((a, b) => a + b) / (otherDecisions.length + 1);

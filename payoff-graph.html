@@ -1,0 +1,38 @@
+<link
+    rel="import"
+    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
+
+<script src="colors.js"></script>
+
+<dom-module id='payoff-graph'>
+<template>
+    <canvas id='canvas' width='[[ width ]]' height='[[ height ]]'></canvas>
+</template>
+<script>
+    Polymer({
+        is: 'payoff-graph',
+        properties: {
+            width: {
+                type: Number,
+            },
+            height: {
+                type: Number,
+            },
+            maxPayoff: {
+                type: Number,
+            },
+            myDecision: {
+                type: Number,
+            },
+            payoffFunction: {
+                type: Object,
+            },
+        },
+        ready() {
+
+        },
+        roundStart() {
+
+        },
+    });
+</script>

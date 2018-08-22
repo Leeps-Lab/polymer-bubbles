@@ -8,12 +8,18 @@
 
 <dom-module id='bubbles-graph'>
 <template>
-    <canvas id='canvas' width='600' height='300'></canvas>
+    <canvas id='canvas' width='[[ width ]]' height='[[ height ]]'></canvas>
 </template>
 <script>
     Polymer({
         is: 'bubbles-graph',
         properties: {
+            width: {
+                type: Number,
+            },
+            height: {
+                type: Number,
+            },
             maxPayoff: {
                 type: Number,
             },
@@ -26,16 +32,16 @@
             },
             payoffFunction: {
                 type: Object,
-                value: function() {
-                    return function() {
-                        throw "payoff function not implemented";
-                    };
-                },
             },
             enablePayoffLandscape: {
                 type: Boolean,
                 value: false,
             },
+            // configuration property for how others' bubbles are displayed
+            // 3 options
+            //     'none': no bubbles are shown for other players
+            //     'strategy': just shows everyone's strategy, without showing their payoff
+            //     'payoff': shows everyone else's payoffs as well as their strategy
             othersBubbles: {
                 type: String,
             }
@@ -59,7 +65,8 @@
             this.yScale = this.height / this.yRange;
 
             this.ctx = this.canvas.getContext('2d');
-
+        },
+        roundStart() {
             this._redrawGraph();
         },
         _redrawGraph() {
@@ -128,8 +135,6 @@
                     payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                 }
                 ctx.beginPath();
-                // we can't use transformContext because scaling contexts doesn't play nice with arc
-                // so just manually transform x and y positions
                 const x = (otherDecisions[i] - this.xMin) * this.xScale;
                 const y = (this.yMax - payoff) * this.yScale;
                 ctx.arc(x, y, radius, 0, 2 * Math.PI);

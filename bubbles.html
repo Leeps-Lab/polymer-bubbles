@@ -8,6 +8,8 @@
 <dom-module id='polymer-bubbles'>
 <template>
     <bubbles-graph
+        width='600'
+        height='300'
         other-decisions='[[ otherDecisions ]]'
         max-payoff='[[ maxPayoff ]]'
         payoff-function='[[ payoffFunction ]]'
@@ -29,12 +31,21 @@
             },
             payoffFunction: {
                 type: Object,
+                value: function() {
+                    return function() {
+                        throw "payoff function not implemented";
+                    };
+                },
             },
             myDecision: {
                 type: Number,
             },
         },
         ready() {
+            this.bubbles_graph = this.$$('bubbles-graph');
+        },
+        roundStart() {
+            this.bubbles_graph.roundStart();
         },
     })
 </script>
