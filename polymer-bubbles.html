@@ -1,0 +1,109 @@
+<link
+    rel="import"
+    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
+<link
+    rel="import"
+    href="bubbles-graph.html">
+<link
+    rel="import"
+    href="payoff-graph.html">
+<link
+    rel="import"
+    href="strategy-graph.html">
+
+<dom-module id='polymer-bubbles'>
+<template>
+    <style>
+        .toprow, .bottomrow {
+            border: 1px solid black;
+            display: inline-block;
+            width: 600px;
+        }
+
+        .toprow {
+            height: 200px;
+        }
+
+        .bottomrow {
+            height: 300px;
+        }
+    </style>
+    <table>
+        <tr>
+            <td>
+                <div class="toprow">
+
+                </div>
+            </td>
+            <td>
+                <div class="toprow">
+                    <strategy-graph
+                        my-decision='[[ myDecision ]]'
+                        other-decisions='[[ otherDecisions ]]'
+                        duration='120'>
+                    </strategy-graph>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="bottomrow">
+                    <bubbles-graph
+                        other-decisions='[[ otherDecisions ]]'
+                        max-payoff='[[ maxPayoff ]]'
+                        payoff-function='[[ payoffFunction ]]'
+                        my-decision='[[ myDecision ]]'
+                        others-bubbles='payoff'
+                        enable-payoff-landscape>
+                    </bubbles-graph>
+                </div>
+            </td>
+            <td>
+                <div class="bottomrow">
+                    <payoff-graph
+                        max-payoff='[[ maxPayoff ]]'
+                        duration='120'
+                        my-payoff='[[ payoffFunction(myDecision, otherDecisions) ]]'>
+                    </payoff-graph>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div>
+    </div>
+</template>
+<script>
+    Polymer({
+        is: 'polymer-bubbles',
+        properties: {
+            otherDecisions: {
+                type: Array,
+            },
+            maxPayoff: {
+                type: Number,
+            },
+            payoffFunction: {
+                type: Object,
+                value: function() {
+                    return function() {
+                        throw "payoff function not implemented";
+                    };
+                },
+            },
+            myDecision: {
+                type: Number,
+            },
+        },
+        ready() {
+            this.bubbles_graph = this.$$('bubbles-graph');
+            this.payoff_graph = this.$$('payoff-graph');
+            this.strategy_graph = this.$$('strategy-graph');
+        },
+        roundStart() {
+            this.bubbles_graph.roundStart();
+            this.payoff_graph.roundStart();
+            this.strategy_graph.roundStart();
+        },
+    })
+</script>
+</dom-module>

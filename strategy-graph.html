@@ -1,0 +1,161 @@
+
+<link
+    rel="import"
+    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
+
+<script src="colors.js"></script>
+
+<dom-module id='strategy-graph'>
+<template>
+    <style>
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <canvas id='canvas'></canvas>
+</template>
+<script>
+    Polymer({
+        is: 'strategy-graph',
+        properties: {
+            myDecision: {
+                type: Number,
+                observer: '_addDecisionToHistory',
+            },
+            otherDecisions: {
+                type: Number,
+            },
+            duration: {
+                type: Number,
+            },
+            _decisionHistory: {
+                type: Array,
+                value: () => [],
+            },
+        },
+        observers: [
+            '_addDecisionToHistory(otherDecisions.splices)',
+        ],
+        ready() {
+            setTimeout(() => {
+                this.canvas = this.$.canvas;
+                this.width = this.canvas.clientWidth;
+                this.height = this.canvas.clientHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+
+                this.yMin = 0;
+                this.yMax = 1;
+                this.yRange = this.yMax - this.yMin;
+                this.yScale = this.height / this.yRange;
+
+                this.ctx = this.canvas.getContext('2d');
+            });
+        },
+        roundStart() {
+            window.setTimeout(() => {
+                this.start_time = performance.now();
+
+                this.xMin = this.start_time;
+                this.xMax = this.xMin + this.duration * 1000;
+                this.xRange = this.xMax - this.xMin;
+                this.xScale = this.width / this.xRange;
+
+                this.last_time = this.start_time;
+
+                requestAnimationFrame(this._tick.bind(this));
+            });
+        },
+        _tick(now) {
+            this.ctx.clearRect(0, 0, this.width, this.height);
+
+            this._drawDecisions(now);
+
+            if (now > this.start_time + this.duration * 1000) {
+                return;
+            }
+            requestAnimationFrame(this._tick.bind(this));
+        },
+        _drawDecisions(now) {
+            const decisionHistory = this.get('_decisionHistory');
+            if (!decisionHistory.length) {
+                return;
+            }
+
+            const ctx = this.ctx;
+            ctx.save();
+
+            ctx.lineWidth = 3;
+
+            const numOtherDecisions = decisionHistory[0].otherDecisions.length;
+
+            for (let i = 0; i < numOtherDecisions; i++) {
+                ctx.beginPath();
+                ctx.moveTo(
+                    (decisionHistory[0].time - this.xMin) * this.xScale,
+                    (this.yMax - decisionHistory[0].otherDecisions[i]) * this.yScale
+                );
+
+                for (let j = 0; j < decisionHistory.length - 1; j++) {
+                    curTime = decisionHistory[j].time;
+                    nextTime = decisionHistory[j + 1].time;
+                    currentDecision = decisionHistory[j].otherDecisions[i];
+                    nextDecision = decisionHistory[j + 1].otherDecisions[i];
+                    this._addSegment(curTime, nextTime, currentDecision, nextDecision);
+                }
+
+                ctx.lineTo(
+                    (now - this.xMin) * this.xScale,
+                    (this.yMax - decisionHistory[decisionHistory.length - 1].otherDecisions[i]) * this.yScale
+                );
+
+                ctx.strokeStyle = OTHER_COLORS[i];
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(
+                (decisionHistory[0].time - this.xMin) * this.xScale,
+                (this.yMax - decisionHistory[0].myDecision) * this.yScale
+            );
+
+            for (let j = 0; j < decisionHistory.length - 1; j++) {
+                curTime = decisionHistory[j].time;
+                nextTime = decisionHistory[j + 1].time;
+                currentDecision = decisionHistory[j].myDecision;
+                nextDecision = decisionHistory[j + 1].myDecision;
+                this._addSegment(curTime, nextTime, currentDecision, nextDecision);
+            }
+
+            ctx.lineTo(
+                (now - this.xMin) * this.xScale,
+                (this.yMax - decisionHistory[decisionHistory.length - 1].myDecision) * this.yScale
+            );
+
+            ctx.strokeStyle = MY_COLOR;
+            ctx.stroke();
+
+            ctx.restore();
+        },
+        _addSegment(curTime, nextTime, currentDecision, nextDecision) {
+                const curX = (curTime - this.xMin) * this.xScale;
+                const nextX = (nextTime - this.xMin) * this.xScale;
+                const curY = (this.yMax - currentDecision) * this.yScale;
+                const nextY = (this.yMax - nextDecision) * this.yScale;
+                this.ctx.lineTo(curX, curY)
+                this.ctx.lineTo(nextX, curY);
+                this.ctx.lineTo(nextX, nextY);
+        },
+        _addDecisionToHistory() {
+            let otherDecisions = this.get('otherDecisions');
+            if (this.myDecision && otherDecisions) {
+                this.push('_decisionHistory', {
+                    myDecision: this.myDecision,
+                    otherDecisions: otherDecisions,
+                    time: performance.now()
+                });
+            }
+        },
+    });
+</script>

@@ -1,4 +1,4 @@
-MY_COLOR = 'rgb(213,255,0)';
+MY_COLOR = 'rgb(9, 153, 18)';
 
 OTHER_COLORS = [
     'rgb(0,0,0)',
