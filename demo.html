@@ -11,14 +11,17 @@
         <polymer-bubbles
             max-payoff='400'
             other-decisions='[[ _otherDecisions ]]'
-            my-decision='[[ _myDecision ]]'
+            my-decision='{{ _myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
+            duration='120'
+            others-bubbles='decision'
             >
         </polymer-bubbles>
     </div>
     <div>
         <button on-tap='_randomizeOthers'>randomize other decisions</button>
-        <button on-tap='_randomizeMy'>randomize my decision</button>
+        &nbsp;
+        <span>my decision: [[ _myDecision ]]</span>
     </div>
 </template>
 <script>
@@ -53,9 +56,6 @@
                 decisions.push(Math.random());
             }
             this.set('_otherDecisions', decisions);
-        },
-        _randomizeMy() {
-            this._myDecision = Math.random();
         },
     })
 </script>

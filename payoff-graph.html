@@ -1,7 +1,3 @@
-<link
-    rel="import"
-    href="https://polygit.org/polymer+^1.4.0/webcomponentsjs+^0.7.0/components/polymer/polymer.html">
-
 <script src="colors.js"></script>
 
 <dom-module id='payoff-graph'>
@@ -83,6 +79,7 @@
             const ctx = this.ctx;
 
             ctx.save();
+            ctx.save();
             this._transformContext();
 
             const payoffHistory = this.get('_payoffHistory');
@@ -97,6 +94,8 @@
 
             const {payoff: payoff, time: time} = payoffHistory[payoffHistory.length - 1];
             ctx.rect(time, 0, now - time, payoff);
+
+            ctx.restore();
 
             ctx.fillStyle = MY_COLOR;
             ctx.fill();
